@@ -21,14 +21,3 @@ function ns.Readable(value)
 	end
 	return value
 end
-
--- Whether a tooltip may be read and drawn on: false for nil and for one the client marks forbidden (a secure
--- tooltip), which raises on any method call. Every tooltip hook checks it first (tools/lint_secret.py).
----@param frame? Frame
----@return boolean
-function ns.Usable(frame)
-	if not frame then
-		return false
-	end
-	return not (frame.IsForbidden and frame:IsForbidden())
-end

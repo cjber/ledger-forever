@@ -26,6 +26,7 @@ local FIELDS = {
 }
 
 ---@class LedgerQuestieSource
+---@field onReady? fun() called when the catalogue is read or found absent
 local Source = {}
 ns.QuestieSource = Source
 

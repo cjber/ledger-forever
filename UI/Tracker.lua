@@ -6,7 +6,7 @@ if ns.broken then
 end
 
 local L = ns.L
-local Section = ForeverCore.TrackerSection
+local Section = ForeverCore.TrackerSection --[[@as ForeverTrackerSectionAPI]]
 
 -- One section in the shared tracker column: today's orders with their progress, collapsing to one line when all are
 -- done. Clicking the header opens the book. Ledger takes order -6 (Kiln Forever holds -5, WFA-5).
@@ -17,7 +17,11 @@ ns.Tracker = Tracker
 local ORDER = -6
 local KEY = "orders"
 
----@type table?
+---@class LedgerTrackerModule : ForeverTrackerModule
+---@field blocks table[] the section's text, rebuilt on every ledger change
+---@field IsDirty fun(self: LedgerTrackerModule): boolean Blizzard's module model: whether a layout is queued
+
+---@type LedgerTrackerModule?
 local module
 
 local Mixin = {}
@@ -116,7 +120,7 @@ ns.OnFilesLoaded(function()
 			safeCall = ns.core.SafeCall,
 		},
 		safeCall = ns.core.SafeCall,
-	})
+	}) --[[@as LedgerTrackerModule?]]
 	if module then
 		module.blocks = {}
 	end

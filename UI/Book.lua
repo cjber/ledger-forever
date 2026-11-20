@@ -24,7 +24,12 @@ if type(UISpecialFrames) == "table" then
 	table.insert(UISpecialFrames, FRAME_NAME)
 end
 
----@type Frame?
+---@class LedgerBookFrame : Frame
+---@field SetTitle fun(self: LedgerBookFrame, title: string)
+---@field SetPortraitToAsset fun(self: LedgerBookFrame, asset: string)
+---@field CloseButton Button
+
+---@type LedgerBookFrame?
 local frame
 local parts = { orders = {}, stamps = {}, tiers = {} }
 local stampOffset = 0
@@ -142,15 +147,19 @@ local function Create()
 	if frame then
 		return frame
 	end
-	frame = CreateFrame("Frame", FRAME_NAME, UIParent, "PortraitFrameTemplate")
+	frame = CreateFrame("Frame", FRAME_NAME, UIParent, "PortraitFrameTemplate") --[[@as LedgerBookFrame]]
 	frame:SetSize(WIDTH, HEIGHT)
 	frame:SetPoint("CENTER")
 	frame:SetToplevel(true)
 	frame:EnableMouse(true)
 	frame:SetMovable(true)
 	frame:RegisterForDrag("LeftButton")
-	frame:SetScript("OnDragStart", frame.StartMoving)
-	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+	frame:SetScript("OnDragStart", function(self)
+		self:StartMoving()
+	end)
+	frame:SetScript("OnDragStop", function(self)
+		self:StopMovingOrSizing()
+	end)
 	frame:Hide()
 	frame:SetTitle(L["Ledger"])
 	frame:SetPortraitToAsset(Style.PORTRAIT)

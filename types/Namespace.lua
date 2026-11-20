@@ -10,8 +10,8 @@
 ---@field ForeverRequire fun(ready: boolean, slash: table): boolean
 ---@field OnFilesLoaded fun(callback: fun()) calls back once every file of the addon has run (Core/ForeverRequire.lua)
 ---@field Art LedgerArt native-aspect art helpers (Core/Art.lua)
+---@field icon string the TOC's X-Forever-Icon, read once in Core/Core.lua
 ---@field Readable fun(value: any): any value, or nil when the client keeps it secret (Core/Secret.lua)
----@field Usable fun(frame?: Frame): boolean
 ---@field State LedgerState saved-variable migration, character record and settings (Core/State.lua)
 ---@field Client LedgerClient the only reader of client APIs (Logic/Client.lua)
 ---@field Zones LedgerZones the reader of the generated zone tables (Logic/Zones.lua)
