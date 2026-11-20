@@ -15,7 +15,7 @@ Ledger Forever is one progress book for WoW: Forever: daily orders drawn from wh
 
 Rewards are cosmetic only, and nothing is sent to other players. Orders and stamps count only what you do while the addon is installed, plus the quests your character has already finished.
 
-- Which quests make up a zone's story comes from QuestieDB, so stamps need Questie or QuestieDB installed. Without it the book says so and zones with no story quests are stamped once you have explored them.
+- Which quests make up a zone's story comes from QuestieDB, so story stamps need the QuestieDB addon installed (Questie alone is not enough). Without it the book says so and zones with no story quests are stamped once you have explored them.
 - The streak and a profession order are not part of the book.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/ledger-forever/main/docs/screenshots/book.png" width="640" alt="The Ledger book, placeholder mock"></p>

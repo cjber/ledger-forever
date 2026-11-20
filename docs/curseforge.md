@@ -8,7 +8,7 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 
 Rewards are cosmetic only, and nothing is sent to other players. Orders and stamps count only what you do while the addon is installed, plus the quests your character has already finished.
 
-- Which quests make up a zone's story comes from QuestieDB, so stamps need Questie or QuestieDB installed. Without it the book says so and zones with no story quests are stamped once you have explored them.
+- Which quests make up a zone's story comes from QuestieDB, so story stamps need the QuestieDB addon installed (Questie alone is not enough). Without it the book says so and zones with no story quests are stamped once you have explored them.
 - The streak and a profession order are not part of the book.
 
 ![The Ledger book, placeholder mock](https://raw.githubusercontent.com/cjber/ledger-forever/main/docs/screenshots/book.png)
