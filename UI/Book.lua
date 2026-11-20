@@ -32,6 +32,24 @@ end
 ---@type LedgerBookFrame?
 local frame
 local parts = { orders = {}, stamps = {}, tiers = {} }
+
+-- A row's mark: the collections item border with the faction seal in it, dimmed until the order or zone is done.
+---@param row table
+local function BuildMark(row)
+	row.border = row:CreateTexture(nil, "BACKGROUND")
+	row.border:SetPoint("LEFT", 4, 0)
+	row.seal = row:CreateTexture(nil, "ARTWORK")
+	row.seal:SetPoint("CENTER", row.border, "CENTER")
+end
+
+---@param row table
+---@param done boolean
+local function PaintMark(row, done)
+	Art.Fit(row.border, done and Style.Atlas.borderCollected or Style.Atlas.borderUncollected, 40, 40)
+	Art.Fit(row.seal, Style.Seal(), 28, 28)
+	row.seal:SetDesaturated(not done)
+	row.seal:SetAlpha(done and 1 or 0.45)
+end
 local stampOffset = 0
 
 ---@param parent Frame
@@ -46,8 +64,7 @@ local function BuildOrders(parent)
 		local row = CreateFrame("Frame", nil, left)
 		row:SetSize(LEFT_WIDTH - 20, ORDER_ROW)
 		row:SetPoint("TOPLEFT", 10, -40 - (slot - 1) * ORDER_ROW)
-		row.mark = row:CreateTexture(nil, "ARTWORK")
-		row.mark:SetPoint("LEFT", 4, 0)
+		BuildMark(row)
 		row.name = Style.Text(row, "GameFontHighlight")
 		row.name:SetPoint("TOPLEFT", 52, -12)
 		row.name:SetWidth(LEFT_WIDTH - 90)
@@ -102,10 +119,7 @@ local function BuildStamps(parent)
 		local row = CreateFrame("Frame", nil, pane)
 		row:SetSize(WIDTH - LEFT_WIDTH - 80, STAMP_ROW)
 		row:SetPoint("TOPLEFT", 10, -40 - (index - 1) * STAMP_ROW)
-		row.border = row:CreateTexture(nil, "BACKGROUND")
-		row.border:SetPoint("LEFT", 4, 0)
-		row.seal = row:CreateTexture(nil, "ARTWORK")
-		row.seal:SetPoint("CENTER", row.border, "CENTER")
+		BuildMark(row)
 		row.name = Style.Text(row, "GameFontHighlight")
 		row.name:SetPoint("LEFT", 56, 6)
 		row.sub = Style.Text(row, "GameFontDisableSmall")
@@ -180,8 +194,7 @@ local function PaintOrders()
 		local data = rows[slot]
 		row:SetShown(data ~= nil)
 		if data then
-			Art.Fit(row.mark, data.done and Style.Seal() or Style.Atlas.borderUncollected, 40, 40)
-			row.mark:SetDesaturated(not data.done)
+			PaintMark(row, data.done)
 			row.name:SetText(data.name)
 			row.sub:SetText(data.sub)
 		end
@@ -222,10 +235,7 @@ local function PaintStamps()
 		local data = rows[stampOffset + index]
 		row:SetShown(data ~= nil)
 		if data then
-			Art.Fit(row.border, data.stamped and Style.Atlas.borderCollected or Style.Atlas.borderUncollected, 40, 40)
-			Art.Fit(row.seal, Style.Seal(), 28, 28)
-			row.seal:SetDesaturated(not data.stamped)
-			row.seal:SetAlpha(data.stamped and 1 or 0.45)
+			PaintMark(row, data.stamped)
 			row.name:SetText(data.name)
 			local sub
 			if data.stamped then
