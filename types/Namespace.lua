@@ -9,6 +9,7 @@
 ---@field L table<string, string>
 ---@field ForeverRequire fun(ready: boolean, slash: table): boolean
 ---@field OnFilesLoaded fun(callback: fun()) calls back once every file of the addon has run (Core/ForeverRequire.lua)
+---@field AfterEvents fun(callback: fun(), ...: string) calls back once every named event has fired this session (Core/ForeverRequire.lua)
 ---@field Art LedgerArt native-aspect art helpers (Core/Art.lua)
 ---@field icon string the TOC's X-Forever-Icon, read once in Core/Core.lua
 ---@field Readable fun(value: any): any value, or nil when the client keeps it secret (Core/Secret.lua)
