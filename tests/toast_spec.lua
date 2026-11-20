@@ -20,9 +20,13 @@ _G.AlertFrame = setmetatable({}, {
 	end,
 })
 _G.UIParent = {}
+local flags = {}
 _G.CreateFrame = function(_, _, _, inherits)
 	assert(inherits == "AlertContainerTemplate", "an addon-owned alert container")
 	return {
+		SetEnabledFlag = function(_, name, enabled)
+			flags[name] = enabled
+		end,
 		SetSize = function() end,
 		SetPoint = function() end,
 		Show = function() end,
@@ -47,7 +51,18 @@ _G.DEFAULT_CHAT_FRAME = {
 	end,
 }
 
+local timers = {}
+_G.C_Timer = {
+	After = function(_, fn)
+		timers[#timers + 1] = fn
+	end,
+}
+
 local ns = Env.namespace()
+local waits = {}
+function ns.AfterEvents(callback, ...)
+	waits[#waits + 1] = { callback = callback, events = { ... } }
+end
 local listener
 local setting = true
 ns.Ledger = {
@@ -71,6 +86,19 @@ ns.Ranks = {
 	end,
 }
 Env.load(ns, { "UI/Toast.lua" })
+
+-- The container's own readiness wait never ends when the files run after a loading event (#5): the addon's wait
+-- skips the events already past and sets the mixin's flags, the first frame one a frame later.
+check(#waits == 1, "the container waits through ns.AfterEvents")
+check(
+	table.concat(waits[1].events, " ") == "VARIABLES_LOADED PLAYER_ENTERING_WORLD",
+	"for the loading events a loader records"
+)
+check(next(flags) == nil, "alerts stay held until the wait ends")
+waits[1].callback()
+check(flags.playerEnteredWorld and flags.variablesLoaded and flags.firstFrameRendered == nil, "the world flags first")
+timers[1]()
+check(flags.firstFrameRendered, "the first frame flag on the frame after")
 
 listener("changed")
 listener("stamp", 100)

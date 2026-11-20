@@ -14,14 +14,26 @@ local L = ns.L
 local Toast = {}
 ns.Toast = Toast
 
--- Created at load: AlertContainerMixin's readiness callback only observes events that come after it. The template
--- declares no size and the client lays out no sizeless single-point frame, so it takes AlertFrame's own 10x10 box,
--- and sits where the game's first toast does.
+-- The template declares no size and the client lays out no sizeless single-point frame, so it takes AlertFrame's own
+-- 10x10 box, and sits where the game's first toast does.
 ---@type table
 local anchor = CreateFrame("Frame", "LedgerForeverToastAnchor", UIParent, "AlertContainerTemplate")
 anchor:SetSize(10, 10)
 anchor:SetPoint("TOP", BottomManagedFrameContainer or AlertFrame or UIParent, "TOP", 0, 0)
 anchor:Show()
+
+-- AlertContainerMixin:OnLoad holds alerts until EventUtil.ContinueAfterAllEvents sees VARIABLES_LOADED,
+-- PLAYER_ENTERING_WORLD and FIRST_FRAME_RENDERED, a wait that never ends when the files run after one of them, as
+-- they do in a package carrying ForeverCore (#5). The mixin's own callback sets its flags here once the events still
+-- to come have passed. It enables firstFrameRendered on the frame after, so the world being entered stands in for
+-- FIRST_FRAME_RENDERED, which no loader records.
+ns.AfterEvents(function()
+	anchor:SetEnabledFlag("playerEnteredWorld", true)
+	anchor:SetEnabledFlag("variablesLoaded", true)
+	C_Timer.After(0, function()
+		anchor:SetEnabledFlag("firstFrameRendered", true)
+	end)
+end, "VARIABLES_LOADED", "PLAYER_ENTERING_WORLD")
 
 ---@param frame table
 ---@param heading string
