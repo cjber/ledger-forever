@@ -1,0 +1,14 @@
+---@meta
+
+-- The TOC supplies one shared namespace to every chunk; none of these declarations run in game.
+---@class LedgerForeverNamespace
+---@field Credits ForeverCreditsData the player credits Data/Credits.lua generates for the shared Thanks page
+---@field core ForeverCoreAddon the addon's own ForeverCore services: journal, log, report and opener
+---@field broken? boolean set when the loaded ForeverCore lacks a member this addon calls, so its files stop
+---@field Slash table the slash words and their SlashCmdList key (Core/Require.lua)
+---@field L table<string, string>
+---@field ForeverRequire fun(ready: boolean, slash: table): boolean
+---@field OnFilesLoaded fun(callback: fun()) calls back once every file of the addon has run (Core/ForeverRequire.lua)
+---@field Art LedgerArt native-aspect art helpers (Core/Art.lua)
+---@field Readable fun(value: any): any value, or nil when the client keeps it secret (Core/Secret.lua)
+---@field Usable fun(frame?: Frame): boolean

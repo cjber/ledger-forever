@@ -1,0 +1,203 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# PyPI answers 502/504 under load; pip's own retries cover it.
+env:
+  PIP_RETRIES: 5
+  PIP_DEFAULT_TIMEOUT: 60
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  deadcode:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: python3 tools/deadcode.py --check
+
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      FOREVER_CORE: forever-core
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Read the ForeverCore ref
+        id: forever-core
+        run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: cjber/forever-core
+          ref: ${{ steps.forever-core.outputs.ref }}
+          path: forever-core
+          persist-credentials: false
+      # Every version lives in tools/toolchain.json; the action installs and verifies each pin from it.
+      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+        id: toolchain
+        with:
+          tools: lua stylua
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - run: luacheck .
+      - run: python3 -m tools.forever_tools.assets
+      # The Python tools are tools/pyproject.toml's dev group, resolved in tools/uv.lock.
+      - run: uv run --project tools --frozen --group dev ruff format --check .
+      - run: uv run --project tools --frozen --group dev ruff check .
+      - run: python3 -m tools.forever_tools.specs
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tools/.cache/forever_sim
+          key: forever-sim-${{ hashFiles('tools/forever_sim/fetch.py') }}
+      - run: python3 tools/forever_tools/sync.py check
+      - run: python3 tools/forever_sim/sync.py check
+      - run: python3 tools/forever_sim/fetch.py
+      - run: luajit tools/forever_sim/run.lua
+      - run: stylua --check .
+
+  typecheck:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      FOREVER_CORE: forever-core
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Read the ForeverCore ref
+        id: forever-core
+        run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: cjber/forever-core
+          ref: ${{ steps.forever-core.outputs.ref }}
+          path: forever-core
+          persist-credentials: false
+      # tools/check_locales.py parses each translation with LuaJIT, and tools/typecheck.sh needs LuaLS.
+      # Every version lives in tools/toolchain.json; the action installs and verifies each pin from it.
+      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+        with:
+          tools: lua luals
+      - name: Lua types and multi-value argument lint
+        run: tools/typecheck.sh
+
+  project-rules:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Changelog fragments are checked on every push, and direct changelog edits are checked on pull requests.
+      - name: Check changelog
+        env:
+          CHANGELOG_BASE: ${{ github.base_ref }}
+        run: |
+          # A base without CHANGELOG.md (the repository's first pull request) has no sections to compare against.
+          if [ -n "$CHANGELOG_BASE" ] && git cat-file -e "origin/$CHANGELOG_BASE:CHANGELOG.md" 2>/dev/null; then
+            python3 tools/changelog.py --check --base "origin/$CHANGELOG_BASE"
+          else
+            python3 tools/changelog.py --check
+          fi
+      # Data/Credits.lua and the README and store thanks blocks are generated from THIRD_PARTY.md (WFA-31).
+      - run: python3 tools/forever_tools/credits.py --check
+      # docs/api.md names every function Core/API.lua publishes and its minor history.
+      - run: python3 tools/check_api_docs.py
+      - env:
+          BASE: ${{ github.base_ref || github.event.repository.default_branch }}
+        run: python3 tools/repo_rules.py --base "origin/$BASE"
+
+  workflows:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - run: uv run --project tools --frozen --group dev actionlint
+      - run: uv run --project tools --frozen --group dev zizmor --offline .github
+
+  secrets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+        with:
+          tools: gitleaks
+      - run: gitleaks git --redact --no-banner .
+
+  # What a tag would ship, checked before it ships: the release workflow's packager without uploading or zipping,
+  # then tools/check_package.py on .release/ (every loaded file present, no development folders, specs pass on it).
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      FOREVER_CORE: ${{ github.workspace }}/forever-core
+      # tools/forever-core.txt's pin is checked against core's latest published release, and an anonymous read
+      # shares the runner's rate limit with every other job on it, so it must authenticate.
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          # Every commit and tag for the version, without old file contents.
+          filter: blob:none
+          persist-credentials: false
+      - name: Read the ForeverCore ref
+        id: forever-core
+        run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: cjber/forever-core
+          ref: ${{ steps.forever-core.outputs.ref }}
+          path: forever-core
+          persist-credentials: false
+      # Every version lives in tools/toolchain.json; the action installs and verifies each pin from it.
+      # `lua` installs luajit, lua5.1 and luac5.1: check_package.py parses the packaged files with luac5.1 and
+      # runs the specs under luajit.
+      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+        with:
+          tools: lua
+      # .pkgmeta's manual changelog, which the release fills with the version's entry.
+      - run: printf 'Package check\n' > .release-notes.md
+      # The packager skips a push build when HEAD carries a tag ("Found future tag, not packaging"), so a tag that
+      # lands while this run is in flight would fail this job and leave main without the green run a release starts
+      # from. This job checks what a tag would ship, so hide HEAD's tags and let the dry run build what an ordinary
+      # push to main builds.
+      - name: Package this commit as an untagged build
+        run: git tag --points-at HEAD | xargs -r git tag --delete
+      - name: Embed ForeverCore
+        run: python3 -m tools.forever_tools.embed
+      # The packager fills @project-version@ with the tag, v and all; write the bare version first.
+      - name: Write the bare version into the TOC
+        run: python3 -m tools.forever_tools.toc_version
+      - uses: BigWigsMods/packager@01e8631a69c69d7654c788d152630d5fed9e3812 # v2.7.0
+        with:
+          args: -d -z
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tools/.cache/forever_sim
+          key: forever-sim-${{ hashFiles('tools/forever_sim/fetch.py') }}
+      - run: python3 tools/forever_sim/fetch.py
+      - run: python3 tools/check_package.py
+        env:
+          GH_TOKEN: ${{ github.token }}

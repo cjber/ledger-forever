@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>Ledger Forever</title>
+  <defs>
+    <!-- Family palette: keep these four gradients unchanged in every addon. -->
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="#3a2a1c"/>
+      <stop offset="1" stop-color="#120c08"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbe7a1"/>
+      <stop offset="0.45" stop-color="#d9a441"/>
+      <stop offset="1" stop-color="#7a4f14"/>
+    </linearGradient>
+    <linearGradient id="emblem" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff4c2"/>
+      <stop offset="0.5" stop-color="#f2c14e"/>
+      <stop offset="1" stop-color="#b3741c"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Frame and background: identical in every addon. -->
+  <rect x="6" y="6" width="244" height="244" rx="28" fill="url(#gold)"/>
+  <rect x="16" y="16" width="224" height="224" rx="20" fill="url(#bg)"/>
+
+  <!-- Emblem: an open ledger with a wax seal. -->
+  <path d="M128 66 C100 50 64 50 38 60 L38 188 C64 178 100 178 128 196 C156 178 192 178 218 188 L218 60 C192 50 156 50 128 66 Z" fill="#000" opacity="0.45" transform="translate(4 5)"/>
+  <path d="M128 66 C100 50 64 50 38 60 L38 188 C64 178 100 178 128 196 C156 178 192 178 218 188 L218 60 C192 50 156 50 128 66 Z" fill="url(#emblem)" stroke="#5a360c" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M128 66 L128 196" fill="none" stroke="#5a360c" stroke-width="5" stroke-linecap="round"/>
+  <path d="M56 86 C76 82 98 84 114 92 M56 110 C76 106 98 108 114 116 M142 92 C158 84 180 82 200 86 M142 116 C158 108 180 106 200 110" fill="none" stroke="#5a360c" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+  <circle cx="160" cy="154" r="22" fill="#9c2f1f" stroke="#5a360c" stroke-width="5"/>
+  <path d="M160 142 L164 151 L174 152 L166 158 L169 168 L160 162 L151 168 L154 158 L146 152 L156 151 Z" fill="#fbe7a1" stroke="#5a360c" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M44 66 C68 58 100 60 122 72 V110 C100 100 68 100 44 106 Z" fill="url(#shine)"/>
+</svg>

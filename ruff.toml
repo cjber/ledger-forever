@@ -1,0 +1,10 @@
+# Most Python here is stdlib data tooling; the manual screenshot renderer also uses Pillow and wowmock.
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[lint.per-file-ignores]
+# Imports wowmock after putting its directory on sys.path.
+"tools/screenshots.py" = ["E402"]

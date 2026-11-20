@@ -1,0 +1,33 @@
+version: 1
+
+# Speedpatrol profile for Ledger Forever, a WoW: Forever addon. The game client cannot run here, so
+# every benchmark is a command over the headless Lua harness the specs use. `speedpatrol init`
+# reads a repo without package.json as an HTTP API, so this file is written by hand.
+project:
+  name: ledger-forever
+  source: .
+app:
+  instructions: instructions.md
+  # Each side loads the ForeverCore its own tools/forever-core.txt pins: CI checks out only the PR's pin, so the
+  # base checkout gets its own here, where the harness looks first (cjber/skillup-forever#550).
+  prepare:
+    - run: '[ -f forever-core/ForeverCore.toc ] || git -c advice.detachedHead=false clone -q --depth 1 --branch "$(cat tools/forever-core.txt)" https://github.com/cjber/forever-core forever-core'
+  setup: []
+  teardown: []
+defaults:
+  iterations: 10
+  warmup: 1
+  timeoutMs: 180000
+  rounds: 2
+benchmarks:
+  - id: gate.specs
+    kind: command
+    critical: false
+    title: "The spec suite, as the gate runs it"
+    run: "for s in tests/*_spec.lua; do luajit \"$s\" >/dev/null || exit 1; done"
+    profile: { enabled: false }
+agents:
+  analyst: { use: claude, timeoutMinutes: 30 }
+  optimizer: { use: claude, enabled: true, maxPerCycle: 1, minImprovement: 0.05 }
+  github: { enabled: false }
+  patrol: { intervalMinutes: 30, pull: origin/main, cycles: 0 }
