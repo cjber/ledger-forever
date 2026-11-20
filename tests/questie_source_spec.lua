@@ -59,7 +59,7 @@ end
 -- The fallback fires first, then Questie reports ready: one announcement, no second read.
 local source, told = Setup(nil)
 source.Start()
-check(source.State() == "absent" and told() == 0, "nothing is read before Questie is ready or the wait is over")
+check(source.State() == "pending" and told() == 0, "pending, not absent, before Questie is ready or the wait is over")
 Run()
 check(told() == 1 and source.State() == "absent", "the fallback goes ahead without Questie")
 readyCallback()

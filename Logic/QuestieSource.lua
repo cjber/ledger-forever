@@ -30,8 +30,10 @@ local FIELDS = {
 local Source = {}
 ns.QuestieSource = Source
 
+-- Pending until the read starts: waiting on Questie is not knowing, and "absent" would tell the book QuestieDB is
+-- missing and let the sweep stamp story zones from explored areas before their stories are read.
 ---@type "absent"|"pending"|"ready"
-local state = "absent"
+local state = "pending"
 ---@type table<integer, table>
 local records = {}
 local ids, cursor, lib, MapOf
@@ -163,7 +165,7 @@ local function Begin()
 	C_Timer.After(0, Step)
 end
 
--- "absent" without a QuestieDB this addon can read, "pending" while the catalogue is being read, "ready" once it is.
+-- "absent" without a QuestieDB this addon can read, "pending" until the catalogue is read, "ready" once it is.
 ---@return "absent"|"pending"|"ready"
 function Source.State()
 	return state
