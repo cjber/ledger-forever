@@ -1,0 +1,12 @@
+# Credential metadata only. Unknown lifecycle facts remain visible as gaps.
+sources:
+  - github: cjber/ledger-forever
+keys:
+  - id: cf-api-key
+    service: curseforge
+    group: ledger-forever
+    owner: unknown
+    locations:
+      - github: CF_API_KEY
+    expires: unknown
+    limit: unknown

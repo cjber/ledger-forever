@@ -1,0 +1,33 @@
+package-as: LedgerForever
+
+manual-changelog:
+  filename: .release-notes.md
+  markup-type: markdown
+
+# The packager already drops every dot-prefixed path (release.sh), so only the rest is listed.
+ignore:
+  - AGENTS.md
+  - forever-core
+  - tools
+  - types
+  - tests
+  - docs
+  - Locales/phrases.txt
+  - Locales/README.md
+  - media/icon.svg
+  - media/icon-400.png
+  - stylua.toml
+  - ruff.toml
+  - .agents
+  - .claude
+
+# CurseForge relations: the CurseForge slug of every OptionalDeps folder in the root .toc (WFA-28).
+optional-dependencies:
+  - questiedb
+  - questie
+
+# ForeverCore ships only under Libs/ForeverCore (the embed step), never as a shared top-level folder, so removing or
+# downgrading this addon cannot delete or roll back core under the others (cjber/forever-core#448). It is listed as an
+# embedded library: the CurseForge app links it on the project page but never installs it as a required dependency.
+embedded-libraries:
+  - forevercore

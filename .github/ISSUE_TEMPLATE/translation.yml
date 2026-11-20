@@ -1,0 +1,35 @@
+name: Translation
+description: Paste translated or corrected lines and I'll add them.
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: locale
+    attributes:
+      label: Locale
+      options:
+        - deDE
+        - esES
+        - esMX
+        - frFR
+        - koKR
+        - ptBR
+        - ruRU
+        - zhCN
+        - zhTW
+    validations:
+      required: true
+  - type: textarea
+    id: file
+    attributes:
+      label: Lines
+      description: >-
+        The lines you translated or corrected, copied from `Locales/phrases.txt` or your language's file in `Locales/`.
+        Lines you leave out stay as they are.
+      render: lua
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything worth knowing, such as phrases you weren't sure about.

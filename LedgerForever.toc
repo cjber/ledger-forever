@@ -1,0 +1,53 @@
+## Interface: 16001
+## Title: Ledger Forever
+## Notes: One progress book: three daily orders, a stamp for every zone whose story you finish, and a cosmetic rank ladder.
+## Author: cjber
+## Version: @project-version@
+## Category: Quality of Life
+## IconTexture: Interface\AddOns\LedgerForever\media\Icon
+## X-Forever-Icon: Interface\Icons\INV_Misc_Book_11
+## OptionalDeps: QuestieDB, Questie, ForeverCore
+## AddonCompartmentFunc: LedgerForever_OnAddonCompartmentClick
+## X-License: GPL-3.0-or-later
+## X-Website: https://github.com/cjber/ledger-forever
+## X-Donate: https://github.com/sponsors/cjber
+## X-Forever-Core: v1.15.6
+## X-Forever-Core-Embed: 1
+## SavedVariables: LedgerForeverDB
+
+Locales\enUS.lua
+Locales\deDE.lua
+Locales\esES.lua
+Locales\esMX.lua
+Locales\frFR.lua
+Locales\koKR.lua
+Locales\ptBR.lua
+Locales\ruRU.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+Core\ForeverRequire.lua
+Core\Require.lua
+Data\Credits.lua
+Core\Secret.lua
+Core\Art.lua
+Core\State.lua
+Core\Core.lua
+Data\ZoneLevels.lua
+Data\Territory.lua
+Data\Areas.lua
+Logic\Client.lua
+Logic\Zones.lua
+Logic\Chains.lua
+Logic\Stamps.lua
+Logic\Ranks.lua
+Logic\Marks.lua
+Logic\Orders.lua
+Logic\NextZone.lua
+Logic\QuestieSource.lua
+Logic\Ledger.lua
+UI\Style.lua
+UI\Book.lua
+UI\Tracker.lua
+UI\Toast.lua
+UI\Settings.lua
+Logic\Events.lua

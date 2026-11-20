@@ -1,0 +1,34 @@
+---@meta
+
+-- The TOC supplies one shared namespace to every chunk; none of these declarations run in game.
+---@class LedgerForeverNamespace
+---@field Credits ForeverCreditsData the player credits Data/Credits.lua generates for the shared Thanks page
+---@field core ForeverCoreAddon the addon's own ForeverCore services: journal, log, report and opener
+---@field broken? boolean set when the loaded ForeverCore lacks a member this addon calls, so its files stop
+---@field Slash table the slash words and their SlashCmdList key (Core/Require.lua)
+---@field L table<string, string>
+---@field ForeverRequire fun(ready: boolean, slash: table): boolean
+---@field OnFilesLoaded fun(callback: fun()) calls back once every file of the addon has run (Core/ForeverRequire.lua)
+---@field Art LedgerArt native-aspect art helpers (Core/Art.lua)
+---@field icon string the TOC's X-Forever-Icon, read once in Core/Core.lua
+---@field Readable fun(value: any): any value, or nil when the client keeps it secret (Core/Secret.lua)
+---@field State LedgerState saved-variable migration, character record and settings (Core/State.lua)
+---@field Client LedgerClient the only reader of client APIs (Logic/Client.lua)
+---@field Zones LedgerZones the reader of the generated zone tables (Logic/Zones.lua)
+---@field Chains LedgerChains quest chains from QuestieDB records (Logic/Chains.lua)
+---@field Stamps LedgerStamps stamp eligibility and progress (Logic/Stamps.lua)
+---@field Ranks LedgerRanks the rank ladder (Logic/Ranks.lua)
+---@field Marks LedgerMarks idempotent mark transactions (Logic/Marks.lua)
+---@field Orders LedgerOrders the daily orders (Logic/Orders.lua)
+---@field NextZone LedgerNextZone the suggested next zone (Logic/NextZone.lua)
+---@field QuestieSource LedgerQuestieSource runtime QuestieDB read (Logic/QuestieSource.lua)
+---@field Ledger LedgerLedger the state machine surfaces subscribe to (Logic/Ledger.lua)
+---@field Events LedgerEvents event wiring (Logic/Events.lua)
+---@field Style LedgerStyle shared art names and widgets (UI/Style.lua)
+---@field Book LedgerBook the book window (UI/Book.lua)
+---@field Tracker LedgerTracker the objective tracker section (UI/Tracker.lua)
+---@field Toast LedgerToast order and rank toasts (UI/Toast.lua)
+---@field Settings LedgerSettings the settings page (UI/Settings.lua)
+---@field ZoneRanges table<integer, integer[]> level range per zone map (Data/ZoneLevels.lua)
+---@field Data table generated tables: Data.territory[uiMapID] = faction mask (Data/Territory.lua)
+---@field Areas table<integer, table<string, boolean>> exploration keys per zone map (Data/Areas.lua)

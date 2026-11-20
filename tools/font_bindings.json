@@ -1,0 +1,4 @@
+{
+  "policy": "Only reviewed text producers with exact widget FontObjects are checked. Source changes invalidate the whole mapping, including aliases, callbacks and font overrides. Review source and callers before updating sha256. Tooltips, menus, chat output, dynamic game text and uncertain consumer fonts have no coverage claim. Empty bindings record reviewed exclusions, not glyph coverage.",
+  "producers": []
+}
