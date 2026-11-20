@@ -68,6 +68,21 @@ jobs:
       - run: luajit tools/forever_sim/run.lua
       - run: stylua --check .
 
+  generated:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tools/.cache
+          key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py') }}
+          restore-keys: regeneration-${{ runner.os }}-
+      - run: python3 -m unittest tools.gen_areas_test tools.gen_corpus_test tools.gen_territory_test tools.gen_zonelevels_test
+      - run: python3 tools/check_generated.py
+
   typecheck:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -107,8 +122,7 @@ jobs:
         env:
           CHANGELOG_BASE: ${{ github.base_ref }}
         run: |
-          # A base without CHANGELOG.md (the repository's first pull request) has no sections to compare against.
-          if [ -n "$CHANGELOG_BASE" ] && git cat-file -e "origin/$CHANGELOG_BASE:CHANGELOG.md" 2>/dev/null; then
+          if [ -n "$CHANGELOG_BASE" ]; then
             python3 tools/changelog.py --check --base "origin/$CHANGELOG_BASE"
           else
             python3 tools/changelog.py --check

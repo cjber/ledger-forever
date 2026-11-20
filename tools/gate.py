@@ -60,19 +60,27 @@ STEPS = (
     Step("ruff check", (*UV, "ruff", "check", "."), ("*.py", "ruff.toml", "tools/pyproject.toml")),
     Step("ruff format", (*UV, "ruff", "format", "--check", "."), ("*.py", "ruff.toml", "tools/pyproject.toml")),
     Step(
+        "generator tests",
+        (
+            "python3",
+            "-m",
+            "unittest",
+            "tools.gen_areas_test",
+            "tools.gen_corpus_test",
+            "tools.gen_territory_test",
+            "tools.gen_zonelevels_test",
+        ),
+        ("tools/gen_*.py",),
+    ),
+    Step("generated", ("python3", "tools/check_generated.py", "--offline"), ("Data/*", "tools/gen_*.py")),
+    Step(
         "assets",
         ("python3", "-m", "tools.forever_tools.assets"),
         LUA + ("media/*", "*.png", "*.tga", "*.blp", ".pkgmeta"),
     ),
     Step(
         "changelog",
-        # A base without CHANGELOG.md (the repository's first pull request) has no sections to compare against.
-        (
-            "sh",
-            "-c",
-            "if git cat-file -e origin/main:CHANGELOG.md 2>/dev/null;"
-            " then python3 tools/changelog.py --check --base origin/main; else python3 tools/changelog.py --check; fi",
-        ),
+        ("python3", "tools/changelog.py", "--check", "--base", "origin/main"),
         ("CHANGELOG.md", "changes/*", "tools/changelog.py"),
     ),
     Step(
