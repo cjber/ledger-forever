@@ -7,14 +7,20 @@ end
 
 local L = ns.L
 
+-- The generated tables in Data/ hang off one table; Data/Territory.lua fills `territory`.
+ns.Data = {}
+
+-- The TOC's identity icon (WFA-8): the book and the toast wear the file the addon list shows.
+ns.icon = C_AddOns.GetAddOnMetadata(addonName, "X-Forever-Icon") or ""
+
 -- The addon's own ForeverCore services: the error journal, the debug log and the report window. Registering the one
 -- opener here is what the slash command, the addon compartment entry and (later) the tracker header and settings
 -- button all call, so a refusal in combat is core's own localized line and never a second code path (WFA-38).
--- `open` is a placeholder until the book exists: it accepts and shows nothing.
+-- The book toggles; `openSecure` refuses the open in combat with core's own line.
 ns.core = ForeverCore.Register(addonName, {
 	title = L["Ledger Forever report"],
 	open = function()
-		return true
+		return ns.Book.Toggle()
 	end,
 	openSecure = true,
 })

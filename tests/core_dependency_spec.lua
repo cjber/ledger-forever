@@ -85,7 +85,7 @@ end
 
 -- A core that lacks the API this addon calls: the addon stops before its UI loads.
 local older = Run({ API = 1, minor = 1 })
-check(older.broken == true, "a core below minor 2 marks the addon broken")
+check(older.broken == true, "a core without the members marks the addon broken")
 check(#messages == 1, "exactly one line is shown")
 check(
 	messages[1] and messages[1]:find("Other Forever", 1, true) ~= nil,
@@ -111,6 +111,11 @@ end
 local complete = Run(Complete())
 check(complete.broken == nil, "a complete core leaves the addon unbroken")
 check(#messages == 0, "a complete core shows nothing")
+
+-- The version number is not the test (WFA-2): a core with every member and no minor loads.
+local unversioned = Complete()
+unversioned.minor = nil
+check(Run(unversioned).broken == nil, "a core with every member and no minor is complete")
 
 local partial = Complete()
 partial.SettingsPage = nil

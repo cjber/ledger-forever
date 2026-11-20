@@ -6,7 +6,7 @@ local _, ns = ...
 -- every Forever addon: one line on screen naming the addon to update, never a chat message. A core is out of date when
 -- a member is missing, never by a version comparison (ForeverCore.API stays at 1 while it adds members).
 --
--- Register and Open (minor 2) carry the one opener the slash command, addon compartment, tracker header and
+-- Register and Open carry the one opener the slash command, addon compartment, tracker header and
 -- settings button share. TrackerSection, TrackerHost and TrackerLine are the tracker section's contract, SettingsPage
 -- the settings page that calls AddTrackerAttach, ContextMenu the book's menus, and Art and Credits the shared look
 -- and Thanks page. A missing member stops the addon's files here instead of failing in the first file that calls it.
@@ -26,7 +26,6 @@ local core = ForeverCore
 local ready = core ~= nil
 	and type(core.Register) == "function"
 	and type(core.Open) == "function"
-	and (core.minor or 0) >= 2
 	and has(core, "TrackerSection", "TrackerHost", "TrackerLine", "SettingsPage", "ContextMenu", "Art", "Credits")
 	and type(core.TrackerSection.Create) == "function"
 	and type(core.TrackerSection.UpdateText) == "function"
