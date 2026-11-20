@@ -11,15 +11,15 @@ Rewards are cosmetic only, and nothing is sent to other players. Orders and stam
 - Which quests make up a zone's story comes from QuestieDB, so story stamps need the QuestieDB addon installed (Questie alone is not enough). Without it the book says so and zones with no story quests are stamped once you have explored them.
 - The streak and a profession order are not part of the book.
 
-![The Ledger book, placeholder mock](https://raw.githubusercontent.com/cjber/ledger-forever/main/docs/screenshots/book.png)
+![The Ledger book: today's orders, the rank card and zone stamps](https://raw.githubusercontent.com/cjber/ledger-forever/main/docs/screenshots/book.png)
 
 The book lists your orders, stamps and rank in one place.
 
-![The Forever tracker section, placeholder mock](https://raw.githubusercontent.com/cjber/ledger-forever/main/docs/screenshots/tracker.png)
+![The Ledger section in the Forever tracker column](https://raw.githubusercontent.com/cjber/ledger-forever/main/docs/screenshots/tracker.png)
 
 The three orders sit in the Forever column of the objective tracker.
 
-![The rank ladder, placeholder mock](https://raw.githubusercontent.com/cjber/ledger-forever/main/docs/screenshots/rank.png)
+![The rank ladder](https://raw.githubusercontent.com/cjber/ledger-forever/main/docs/screenshots/rank.png)
 
 Marks from orders and stamps fill the cosmetic rank ladder.
 
