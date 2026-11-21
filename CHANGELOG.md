@@ -9,6 +9,12 @@ Added/Fixed lists: what matters about a release is why the book now shows someth
 Each version's entry is also its release notes on GitHub, CurseForge and Wago. API changes other addons' authors need
 go under an optional `### For addon authors` subsection after a version's player bullets.
 
+## [0.1.1] - 2026-11-21
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
 ## [0.1.0] - 2026-11-20
 
 <!-- discord-image: docs/screenshots/book.png -->
@@ -16,4 +22,3 @@ go under an optional `### For addon authors` subsection after a version's player
 ### Added
 
 - **Ledger Forever, first release.** One book for daily orders, a wax stamp for every zone whose story you finish and a cosmetic rank ladder fed by marks. `/ledger` opens it, and the orders also sit in the Forever column of the objective tracker. Toasts and the tracker section can each be turned off in settings. (cjber/forever-core#974)
-
