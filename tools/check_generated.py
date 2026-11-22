@@ -31,11 +31,6 @@ def copy_sources(root, scratch, copy_tracked=generated.copy_tracked):
         shutil.copy2(source, target)
 
 
-def input_cache(root, cache="tools/.cache"):
-    """Keep this worktree's cache local when its shared main checkout is read-only."""
-    return root / cache
-
-
 def run(root, *command):
     subprocess.run(command, cwd=root, check=True)
 
@@ -56,9 +51,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--offline", action="store_true", help="require cached inputs in tools/.cache")
     original_copy_tracked = generated.copy_tracked
-    original_input_cache = generated.input_cache
     generated.copy_tracked = copy_sources
-    generated.input_cache = input_cache
     try:
         generated.check_generated(
             ROOT,
@@ -70,7 +63,6 @@ def main():
         )
     finally:
         generated.copy_tracked = original_copy_tracked
-        generated.input_cache = original_input_cache
 
 
 if __name__ == "__main__":
