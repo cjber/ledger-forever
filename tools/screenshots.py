@@ -28,8 +28,9 @@ def book(ui):
     frame = ui.canvas(780, 560)
     rock = ui.texture("interface/framegeneral/ui-background-rock.blp")
     wowmock.tiled(frame, rock, 2, 21, 776, 537, rock.width / ui.scale, rock.height / ui.scale)
+    marble = ui.texture("interface/framegeneral/ui-background-marble.blp")
     for x, y, width, height in [(18, 70, 270, 400), (298, 70, 454, 130), (298, 208, 454, 262), (18, 482, 744, 66)]:
-        frame.fill(x, y, width, height, (0, 0, 0, 0.5))
+        wowmock.tiled(frame, marble, x, y, width, height, marble.width / ui.scale, marble.height / ui.scale)
         frame.nine_slice(wowmock.INSET_FRAME_LAYOUT, x, y, width, height)
     title = FONTS["GameFontNormalLarge"]
     rank_title = wowmock.Font(wowmock.FRIZQT, 20, wowmock.NORMAL, (1, -1))
