@@ -98,7 +98,7 @@ local function Complete()
 		Register = function() end,
 		Open = function() end,
 		TrackerSection = { Create = function() end, UpdateText = function() end },
-		TrackerHost = {},
+		TrackerHost = { HandleBlockHeaderClick = function() end },
 		TrackerLine = {},
 		SettingsPage = { Register = function() end },
 		ContextMenu = {},

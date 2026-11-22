@@ -39,10 +39,9 @@ function Mixin:LayoutContents()
 	end
 end
 
-function Mixin:OnBlockHeaderClick(_, button)
-	if button ~= "RightButton" then
-		ForeverCore.Open(addonName)
-	end
+-- The tracker template calls this method for block headers.
+function Mixin:OnBlockHeaderClick(block, button)
+	return ForeverCore.TrackerHost.HandleBlockHeaderClick(self, block, button)
 end
 
 ---@return table[] blocks the section's text: none when no orders are issued
@@ -109,6 +108,16 @@ ns.OnFilesLoaded(function()
 		order = ORDER,
 		lineTemplate = "ObjectiveTrackerAnimLineTemplate",
 		header = L["Ledger"],
+		contract = {
+			menu = function(_, menu)
+				menu:Open(L["Ledger"], addonName)
+			end,
+			click = function(_, button)
+				if button == "LeftButton" then
+					ForeverCore.Open(addonName)
+				end
+			end,
+		},
 		show = {
 			get = function()
 				return ns.State.Setting(ns.Ledger.DB(), "tracker")
