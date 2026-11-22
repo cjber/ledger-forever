@@ -12,10 +12,17 @@ _G.GRAY_FONT_COLOR = { name = "gray" }
 _G.OBJECTIVE_TRACKER_COLOR = { Normal = { name = "normal" } }
 local created, updates, opened = nil, 0, {}
 local resized = false
+local headerClick
 _G.ForeverCore = {
 	Open = function(name)
 		opened[#opened + 1] = name
 	end,
+	TrackerHost = {
+		HandleBlockHeaderClick = function(module, block, button)
+			headerClick = { module, block, button }
+			return true
+		end,
+	},
 	TrackerSection = {
 		Create = function(name, mixin, opts)
 			local module = { name = name, dirty = 0, opts = opts }
@@ -128,8 +135,13 @@ check(
 	"the layout draws the header, the lines, then lays out"
 )
 
-created:OnBlockHeaderClick(block, "LeftButton")
+check(created:OnBlockHeaderClick(block, "LeftButton"), "the block returns the host's handling result")
+check(
+	headerClick[1] == created and headerClick[2] == block and headerClick[3] == "LeftButton",
+	"the block forwards its module, block and button to the host"
+)
+created.opts.contract.click({ kind = "section" }, "LeftButton")
 check(opened[1] == "LedgerForever", "a click opens the book through the one opener")
-created:OnBlockHeaderClick(block, "RightButton")
+created.opts.contract.click({ kind = "section" }, "RightButton")
 check(#opened == 1, "a right click is left to the column's menu")
 print(("tracker_spec: %d checks"):format(checks))

@@ -27,6 +27,7 @@ local ready = core ~= nil
 	and type(core.Register) == "function"
 	and type(core.Open) == "function"
 	and has(core, "TrackerSection", "TrackerHost", "TrackerLine", "SettingsPage", "ContextMenu", "Art", "Credits")
+	and type(core.TrackerHost.HandleBlockHeaderClick) == "function"
 	and type(core.TrackerSection.Create) == "function"
 	and type(core.TrackerSection.UpdateText) == "function"
 	and type(core.SettingsPage.Register) == "function"
