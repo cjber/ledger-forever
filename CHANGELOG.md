@@ -9,6 +9,12 @@ Added/Fixed lists: what matters about a release is why the book now shows someth
 Each version's entry is also its release notes on GitHub, CurseForge and Wago. API changes other addons' authors need
 go under an optional `### For addon authors` subsection after a version's player bullets.
 
+## [0.1.3] - 2026-11-22
+
+### Fixed
+
+- Clicking the Ledger tracker heading opens the book through the shared tracker controls.
+
 ## [0.1.2] - 2026-11-22
 
 <!-- forever-core-sync -->
