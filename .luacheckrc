@@ -12,6 +12,7 @@ globals = {
 }
 
 read_globals = {
+	"AlertContainerMixin", "DEFAULT_FULLSCREEN_STRATA",
 	"C_AddOns", "C_Timer", "CreateFrame", "ForeverCore", "GetLocale", "InCombatLockdown", "Mixin", "UIErrorsFrame",
 	"UIParent", "UnitName", "C_Texture", "CreateAtlasMarkup", "geterrorhandler", "strtrim", "hooksecurefunc", "issecretvalue", "canaccessvalue",
 	"AlertFrame", "BottomManagedFrameContainer", "C_DateAndTime", "C_Map", "C_MapExplorationInfo", "C_QuestLog", "GRAY_FONT_COLOR", "GetMaxPlayerLevel",
