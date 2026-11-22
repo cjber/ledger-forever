@@ -14,19 +14,30 @@ local L = ns.L
 local Toast = {}
 ns.Toast = Toast
 
--- The template declares no size and the client lays out no sizeless single-point frame, so it takes AlertFrame's own
--- 10x10 box, and sits where the game's first toast does.
+-- AlertContainerTemplate's OnLoad registers EventUtil.ContinueAfterAllEvents, which never calls back if the addon
+-- loads after VARIABLES_LOADED. Use a plain addon-owned frame with AlertContainerMixin and the state OnLoad sets.
 ---@type table
-local anchor = CreateFrame("Frame", "LedgerForeverToastAnchor", UIParent, "AlertContainerTemplate")
+local anchor = CreateFrame("Frame", "LedgerForeverToastAnchor", UIParent)
+Mixin(anchor, AlertContainerMixin)
+anchor.alertFrameSubSystems = {}
+anchor.reasonsToBlockLeftClickingAlerts = {}
+anchor.fullscreenFrame = UIParent
+anchor.fullscreenStrata = DEFAULT_FULLSCREEN_STRATA
+anchor.baseAnchorFrame = anchor
+anchor.shouldQueueAlertsFlags = {
+	playerEnteredWorld = false,
+	variablesLoaded = false,
+	firstFrameRendered = false,
+}
+
+-- The client lays out no sizeless single-point frame, so use AlertFrame's 10x10 box at the game's first toast position.
 anchor:SetSize(10, 10)
 anchor:SetPoint("TOP", BottomManagedFrameContainer or AlertFrame or UIParent, "TOP", 0, 0)
 anchor:Show()
 
--- AlertContainerMixin:OnLoad holds alerts until EventUtil.ContinueAfterAllEvents sees VARIABLES_LOADED,
--- PLAYER_ENTERING_WORLD and FIRST_FRAME_RENDERED, a wait that never ends when the files run after one of them, as
--- they do in a package carrying ForeverCore (#5). The mixin's own callback sets its flags here once the events still
--- to come have passed. It enables firstFrameRendered on the frame after, so the world being entered stands in for
--- FIRST_FRAME_RENDERED, which no loader records.
+-- Alerts stay queued until all three flags are true. Our wait skips loading events that already fired, as they do
+-- before these files run in a package carrying ForeverCore (#5). It sets the world and variables flags, then enables
+-- firstFrameRendered on the next frame because no loader records FIRST_FRAME_RENDERED.
 ns.AfterEvents(function()
 	anchor:SetEnabledFlag("playerEnteredWorld", true)
 	anchor:SetEnabledFlag("variablesLoaded", true)

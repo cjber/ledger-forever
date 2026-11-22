@@ -20,25 +20,46 @@ _G.AlertFrame = setmetatable({}, {
 	end,
 })
 _G.UIParent = {}
-local flags = {}
+local anchor
+_G.DEFAULT_FULLSCREEN_STRATA = "FULLSCREEN_DIALOG"
+_G.EventUtil = {
+	ContinueAfterAllEvents = function()
+		error("the toast anchor registered a Blizzard event wait")
+	end,
+}
+_G.Mixin = function(frame, mixin)
+	for key, value in pairs(mixin) do
+		frame[key] = value
+	end
+end
+_G.AlertContainerMixin = {
+	OnLoad = function()
+		_G.EventUtil.ContinueAfterAllEvents()
+	end,
+	SetEnabledFlag = function(self, name, enabled)
+		self.shouldQueueAlertsFlags[name] = enabled
+	end,
+	AddQueuedAlertFrameSubSystem = function(_, tpl, setup)
+		template = { name = tpl, setup = setup }
+		return {
+			AddAlert = function(_, ...)
+				alerts[#alerts + 1] = { ... }
+			end,
+		}
+	end,
+}
 _G.CreateFrame = function(_, _, _, inherits)
-	assert(inherits == "AlertContainerTemplate", "an addon-owned alert container")
-	return {
-		SetEnabledFlag = function(_, name, enabled)
-			flags[name] = enabled
-		end,
+	anchor = {
 		SetSize = function() end,
 		SetPoint = function() end,
 		Show = function() end,
-		AddQueuedAlertFrameSubSystem = function(_, tpl, setup)
-			template = { name = tpl, setup = setup }
-			return {
-				AddAlert = function(_, ...)
-					alerts[#alerts + 1] = { ... }
-				end,
-			}
-		end,
 	}
+	if inherits == "AlertContainerTemplate" then
+		_G.Mixin(anchor, _G.AlertContainerMixin)
+		anchor:OnLoad()
+	end
+	check(inherits == nil, "the toast anchor uses a plain frame")
+	return anchor
 end
 _G.ForeverCore = { Open = function() end }
 local report = print
@@ -87,16 +108,25 @@ ns.Ranks = {
 }
 Env.load(ns, { "UI/Toast.lua" })
 
--- The container's own readiness wait never ends when the files run after a loading event (#5): the addon's wait
--- skips the events already past and sets the mixin's flags, the first frame one a frame later.
+check(type(anchor.alertFrameSubSystems) == "table", "the anchor has its own alert subsystems")
+check(type(anchor.reasonsToBlockLeftClickingAlerts) == "table", "the anchor has its own click blockers")
+check(anchor.fullscreenFrame == _G.UIParent, "fullscreen alerts use UIParent")
+check(anchor.fullscreenStrata == _G.DEFAULT_FULLSCREEN_STRATA, "fullscreen alerts use the default strata")
+check(anchor.baseAnchorFrame == anchor, "alerts stack from the addon anchor")
+
+-- The addon's wait skips loading events that have already fired.
+local flags = anchor.shouldQueueAlertsFlags
 check(#waits == 1, "the container waits through ns.AfterEvents")
 check(
 	table.concat(waits[1].events, " ") == "VARIABLES_LOADED PLAYER_ENTERING_WORLD",
 	"for the loading events a loader records"
 )
-check(next(flags) == nil, "alerts stay held until the wait ends")
+check(
+	flags.playerEnteredWorld == false and flags.variablesLoaded == false and flags.firstFrameRendered == false,
+	"alerts stay held until the wait ends"
+)
 waits[1].callback()
-check(flags.playerEnteredWorld and flags.variablesLoaded and flags.firstFrameRendered == nil, "the world flags first")
+check(flags.playerEnteredWorld and flags.variablesLoaded and flags.firstFrameRendered == false, "the world flags first")
 timers[1]()
 check(flags.firstFrameRendered, "the first frame flag on the frame after")
 
