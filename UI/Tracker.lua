@@ -39,10 +39,6 @@ function Mixin:LayoutContents()
 	end
 end
 
-local function OpenBook()
-	return ForeverCore.Open(addonName)
-end
-
 -- The tracker template calls this method for block headers.
 function Mixin:OnBlockHeaderClick(block, button)
 	return ForeverCore.TrackerHost.HandleBlockHeaderClick(self, block, button)
@@ -114,11 +110,11 @@ ns.OnFilesLoaded(function()
 		header = L["Ledger"],
 		contract = {
 			menu = function(_, menu)
-				menu:Open(L["Ledger"], OpenBook)
+				menu:Open(L["Ledger"], addonName)
 			end,
 			click = function(_, button)
 				if button == "LeftButton" then
-					return OpenBook()
+					ForeverCore.Open(addonName)
 				end
 			end,
 		},
