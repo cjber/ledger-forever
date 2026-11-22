@@ -12,6 +12,9 @@ end
 local frames = {}
 _G.UISpecialFrames = {}
 _G.UIParent = Env.widget("UIParent")
+_G.UIParent.GetWidth = function()
+	return 712
+end
 _G.C_Texture = {
 	GetAtlasInfo = function()
 		return { width = 64, height = 64 }
