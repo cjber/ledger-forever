@@ -6,7 +6,7 @@ if ns.broken then
 end
 
 local L = ns.L
-local Style, Art = ns.Style, ns.Art
+local Style = ns.Style
 
 -- The book: today's orders on the left, the rank card and the stamps on the right, one bar of totals under both. It
 -- is an addon-owned frame that opens itself: ShowUIPanel and HideUIPanel taint the client's gamepad bookkeeping, so
@@ -16,9 +16,9 @@ local Book = {}
 ns.Book = Book
 
 local FRAME_NAME = "LedgerForeverFrame"
-local WIDTH, HEIGHT = 780, 560
-local LEFT_WIDTH, PANEL_HEIGHT = 270, 400
-local ORDER_ROW, STAMP_ROW, STAMP_VISIBLE = 66, 46, 5
+local WIDTH, NARROW_WIDTH, HEIGHT = 780, 680, 560
+local PANEL_HEIGHT = 400
+local ORDER_ROW, STAMP_ROW, STAMP_VISIBLE = 48, 42, 5
 
 if type(UISpecialFrames) == "table" then
 	table.insert(UISpecialFrames, FRAME_NAME)
@@ -33,96 +33,89 @@ end
 local frame
 local parts = { orders = {}, stamps = {}, tiers = {} }
 
--- A row's mark: the collections item border with the faction seal in it, dimmed until the order or zone is done.
----@param row table
-local function BuildMark(row)
-	row.border = row:CreateTexture(nil, "BACKGROUND")
-	row.border:SetPoint("LEFT", 4, 0)
-	row.seal = row:CreateTexture(nil, "ARTWORK")
-	row.seal:SetPoint("CENTER", row.border, "CENTER")
-end
-
----@param row table
----@param done boolean
-local function PaintMark(row, done)
-	Art.Fit(row.border, done and Style.Atlas.borderCollected or Style.Atlas.borderUncollected, 40, 40)
-	Art.Fit(row.seal, Style.Seal(), 28, 28)
-	row.seal:SetDesaturated(not done)
-	row.seal:SetAlpha(done and 1 or 0.45)
-end
 local stampOffset = 0
 
 ---@param parent Frame
-local function BuildOrders(parent)
+---@param width number
+local function BuildOrders(parent, width)
 	local left = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
 	left:SetPoint("TOPLEFT", 18, -70)
-	left:SetSize(LEFT_WIDTH, PANEL_HEIGHT)
+	left:SetSize(width, PANEL_HEIGHT)
 	local title = Style.Text(left, "GameFontNormalLarge")
 	title:SetPoint("TOPLEFT", 14, -12)
 	title:SetText(L["Today's orders"])
 	for slot = 1, 3 do
 		local row = CreateFrame("Frame", nil, left)
-		row:SetSize(LEFT_WIDTH - 20, ORDER_ROW)
-		row:SetPoint("TOPLEFT", 10, -40 - (slot - 1) * ORDER_ROW)
-		BuildMark(row)
+		row:SetSize(width - 28, ORDER_ROW)
+		row:SetPoint("TOPLEFT", 14, -40 - (slot - 1) * ORDER_ROW)
 		row.name = Style.Text(row, "GameFontHighlight")
-		row.name:SetPoint("TOPLEFT", 52, -12)
-		row.name:SetWidth(LEFT_WIDTH - 90)
+		row.name:SetPoint("TOPLEFT")
+		row.name:SetWidth(width - 28)
 		row.name:SetJustifyH("LEFT")
-		row.sub = Style.Text(row, "GameFontDisableSmall")
+		row.sub = Style.Text(row, "GameFontHighlightSmall")
 		row.sub:SetPoint("TOPLEFT", row.name, "BOTTOMLEFT", 0, -4)
-		row.sub:SetWidth(LEFT_WIDTH - 90)
+		row.sub:SetWidth(width - 28)
 		row.sub:SetJustifyH("LEFT")
 		parts.orders[slot] = row
 	end
-	parts.reset = Style.Text(left, "GameFontDisableSmall")
+	parts.reset = Style.Text(left, "GameFontHighlightSmall")
 	parts.reset:SetPoint("BOTTOMLEFT", 14, 14)
+	parts.reset:SetWidth(width - 28)
+	parts.reset:SetJustifyH("LEFT")
 end
 
 ---@param parent Frame
-local function BuildCard(parent)
+---@param leftWidth number
+---@param width number
+local function BuildCard(parent, leftWidth, width)
 	local card = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
-	card:SetPoint("TOPLEFT", 18 + LEFT_WIDTH + 10, -70)
-	card:SetSize(WIDTH - LEFT_WIDTH - 56, 130)
-	parts.laurel = card:CreateTexture(nil, "ARTWORK")
-	parts.laurel:SetPoint("TOPLEFT", 14, -12)
-	Art.Fit(parts.laurel, Style.Atlas.laurel, 64, 64)
+	card:SetPoint("TOPLEFT", 18 + leftWidth + 10, -70)
+	card:SetSize(width, 130)
 	parts.rank = Style.Text(card, "GameFontNormalHuge")
-	parts.rank:SetPoint("TOPLEFT", 90, -14)
+	parts.rank:SetPoint("TOPLEFT", 14, -12)
 	parts.totals = Style.Text(card, "GameFontHighlight")
 	parts.totals:SetPoint("TOPLEFT", parts.rank, "BOTTOMLEFT", 0, -6)
-	parts.next = Style.Text(card, "GameFontDisableSmall")
+	parts.next = Style.Text(card, "GameFontHighlightSmall")
 	parts.next:SetPoint("TOPLEFT", parts.totals, "BOTTOMLEFT", 0, -4)
-	parts.bar = Style.Bar(card, WIDTH - LEFT_WIDTH - 90, 14)
-	parts.bar:SetPoint("BOTTOMLEFT", 16, 30)
-	for tier = 1, #ns.Ranks.Names do
-		local label = Style.Text(card, "GameFontDisableSmall")
-		label:SetText(ns.Ranks.Names[tier])
-		label:SetPoint("BOTTOMLEFT", 16 + (tier - 1) * ((WIDTH - LEFT_WIDTH - 90) / #ns.Ranks.Names), 10)
+	parts.bar = Style.Bar(card, width - 28, 14)
+	parts.bar:SetPoint("BOTTOMLEFT", 14, 30)
+	local totalWidth = 0
+	for tier, name in ipairs(ns.Ranks.Names) do
+		local label = Style.Text(card, "GameFontHighlightSmall")
+		label:SetText(name)
 		parts.tiers[tier] = label
+		totalWidth = totalWidth + label:GetStringWidth()
+	end
+	-- Share the remaining width between labels so longer translated rank names have room.
+	local gap = math.max(0, (width - 28 - totalWidth) / (#parts.tiers - 1))
+	local offset = 14
+	for _, label in ipairs(parts.tiers) do
+		label:SetPoint("BOTTOMLEFT", offset, 10)
+		offset = offset + label:GetStringWidth() + gap
 	end
 end
 
 ---@param parent Frame
-local function BuildStamps(parent)
+---@param leftWidth number
+---@param width number
+local function BuildStamps(parent, leftWidth, width)
 	local pane = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
-	pane:SetPoint("TOPLEFT", 18 + LEFT_WIDTH + 10, -208)
-	pane:SetSize(WIDTH - LEFT_WIDTH - 56, PANEL_HEIGHT - 138)
+	pane:SetPoint("TOPLEFT", 18 + leftWidth + 10, -208)
+	pane:SetSize(width, PANEL_HEIGHT - 138)
 	local title = Style.Text(pane, "GameFontNormalLarge")
 	title:SetPoint("TOPLEFT", 14, -12)
 	title:SetText(L["Stamps"])
-	parts.notice = Style.Text(pane, "GameFontDisableSmall")
+	parts.notice = Style.Text(pane, "GameFontHighlightSmall")
 	parts.notice:SetPoint("TOPRIGHT", -14, -16)
-	parts.notice:SetWidth(280)
+	parts.notice:SetWidth(width - 112)
 	parts.notice:SetJustifyH("RIGHT")
 	for index = 1, STAMP_VISIBLE do
 		local row = CreateFrame("Frame", nil, pane)
-		row:SetSize(WIDTH - LEFT_WIDTH - 80, STAMP_ROW)
-		row:SetPoint("TOPLEFT", 10, -40 - (index - 1) * STAMP_ROW)
-		BuildMark(row)
+		row:SetSize(width - 28, STAMP_ROW)
+		row:SetPoint("TOPLEFT", 14, -40 - (index - 1) * STAMP_ROW)
 		row.name = Style.Text(row, "GameFontHighlight")
-		row.name:SetPoint("LEFT", 56, 6)
-		row.sub = Style.Text(row, "GameFontDisableSmall")
+		row.name:SetPoint("TOPLEFT")
+		row.sub = Style.Text(row, "GameFontHighlightSmall")
 		row.sub:SetPoint("TOPLEFT", row.name, "BOTTOMLEFT", 0, -2)
 		parts.stamps[index] = row
 	end
@@ -134,13 +127,14 @@ local function BuildStamps(parent)
 end
 
 ---@param parent Frame
-local function BuildBottom(parent)
+---@param width number
+local function BuildBottom(parent, width)
 	local bar = CreateFrame("Frame", nil, parent, "InsetFrameTemplate")
 	bar:SetPoint("BOTTOMLEFT", 18, 12)
-	bar:SetSize(WIDTH - 36, 66)
+	bar:SetSize(width - 36, 66)
 	parts.today = Style.Text(bar, "GameFontNormalLarge")
 	parts.today:SetPoint("TOPLEFT", 14, -8)
-	parts.todayBar = Style.Bar(bar, 300, 14)
+	parts.todayBar = Style.Bar(bar, width - 480, 14)
 	parts.todayBar:SetPoint("TOPLEFT", 14, -34)
 	parts.earned = Style.Text(bar, "GameFontHighlight")
 	parts.earned:SetPoint("LEFT", parts.todayBar, "RIGHT", 14, 0)
@@ -162,7 +156,8 @@ local function Create()
 		return frame
 	end
 	frame = CreateFrame("Frame", FRAME_NAME, UIParent, "PortraitFrameTemplate") --[[@as LedgerBookFrame]]
-	frame:SetSize(WIDTH, HEIGHT)
+	local width = math.max(NARROW_WIDTH, math.min(WIDTH, UIParent:GetWidth() - 32))
+	frame:SetSize(width, HEIGHT)
 	frame:SetPoint("CENTER")
 	frame:SetToplevel(true)
 	frame:EnableMouse(true)
@@ -181,10 +176,12 @@ local function Create()
 	frame.CloseButton:SetScript("OnClick", Book.Hide)
 	parts.subtitle = Style.Text(frame, "GameFontHighlight")
 	parts.subtitle:SetPoint("TOPLEFT", 74, -34)
-	BuildOrders(frame)
-	BuildCard(frame)
-	BuildStamps(frame)
-	BuildBottom(frame)
+	local leftWidth = 270 - (WIDTH - width) / 2
+	local rightWidth = width - leftWidth - 46
+	BuildOrders(frame, leftWidth)
+	BuildCard(frame, leftWidth, rightWidth)
+	BuildStamps(frame, leftWidth, rightWidth)
+	BuildBottom(frame, width)
 	return frame
 end
 
@@ -194,7 +191,8 @@ local function PaintOrders()
 		local data = rows[slot]
 		row:SetShown(data ~= nil)
 		if data then
-			PaintMark(row, data.done)
+			row.name:SetFontObject(data.done and "GameFontNormal" or "GameFontHighlight")
+			row.name:SetJustifyH("LEFT")
 			row.name:SetText(data.name)
 			row.sub:SetText(data.sub)
 		end
@@ -220,11 +218,7 @@ local function PaintCard(char)
 	parts.bar:SetValue(ns.Ranks.Fraction(marks))
 	local tier = ns.Ranks.Split(index)
 	for number, label in ipairs(parts.tiers) do
-		if number == tier then
-			label:SetTextColor(1, 0.82, 0)
-		else
-			label:SetTextColor(0.5, 0.5, 0.5)
-		end
+		label:SetFontObject(number == tier and "GameFontNormalSmall" or "GameFontHighlightSmall")
 	end
 end
 
@@ -235,7 +229,7 @@ local function PaintStamps()
 		local data = rows[stampOffset + index]
 		row:SetShown(data ~= nil)
 		if data then
-			PaintMark(row, data.stamped)
+			row.name:SetFontObject(data.stamped and "GameFontNormal" or "GameFontHighlight")
 			row.name:SetText(data.name)
 			local sub
 			if data.stamped then

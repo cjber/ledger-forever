@@ -10,21 +10,8 @@ end
 local Style = {}
 ns.Style = Style
 
-Style.Atlas = {
-	sealAlliance = "Quest-Alliance-WaxSeal",
-	sealHorde = "Quest-Horde-WaxSeal",
-	laurel = "honorsystem-prestige-laurel",
-	borderCollected = "collections-itemborder-collected",
-	borderUncollected = "collections-itemborder-uncollected",
-}
-
 -- The book's portrait and the toast's mark: the TOC's X-Forever-Icon, read once in Core/Core.lua.
 Style.PORTRAIT = ns.icon
-
----@return string atlas the wax seal of the player's faction
-function Style.Seal()
-	return ns.Client.FactionBit() == 4 and Style.Atlas.sealHorde or Style.Atlas.sealAlliance
-end
 
 ---@param parent Frame
 ---@param font string

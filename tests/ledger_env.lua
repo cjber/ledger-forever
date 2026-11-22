@@ -117,6 +117,9 @@ function Env.widget(kind)
 		GetText = function(self)
 			return self.text
 		end,
+		GetStringWidth = function(self)
+			return #(self.text or "") * 5
+		end,
 		Show = function(self)
 			self.shown = true
 		end,
