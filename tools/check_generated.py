@@ -31,7 +31,6 @@ def copy_sources(root, scratch, copy_tracked=generated.copy_tracked):
         shutil.copy2(source, target)
 
 
-
 def run(root, *command):
     subprocess.run(command, cwd=root, check=True)
 
