@@ -34,3 +34,4 @@ go under an optional `### For addon authors` subsection after a version's player
 ### Added
 
 - **Ledger Forever, first release.** One book for daily orders, a wax stamp for every zone whose story you finish and a cosmetic rank ladder fed by marks. `/ledger` opens it, and the orders also sit in the Forever column of the objective tracker. Toasts and the tracker section can each be turned off in settings. (cjber/forever-core#974)
+
