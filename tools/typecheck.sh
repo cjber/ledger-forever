@@ -44,9 +44,22 @@ python3 -m unittest discover -s tools -p '*_test.py'
 python3 tools/lint_art.py
 python3 tools/lint_secret.py
 python3 tools/lint_client_calls.py
-# No reviewed font bindings until the book's UI draws text of its own: the checker fails on an empty list. Delete this
-# condition when the first producer enters tools/font_bindings.json.
-if python3 -c 'import json, sys; sys.exit(not json.load(open("tools/font_bindings.json"))["producers"])'; then
+# An empty producer list records reviewed exclusions and has no glyphs to check.
+has_font_producers=$(python3 - <<'PY'
+import json
+from pathlib import Path
+
+manifest = Path("tools/font_bindings.json")
+try:
+    producers = json.loads(manifest.read_text(encoding="utf-8"))["producers"]
+except (OSError, ValueError, KeyError, TypeError) as error:
+    raise SystemExit(f"{manifest}: {error}") from None
+if not isinstance(producers, list):
+    raise SystemExit(f"{manifest}: producers must be a list")
+print("yes" if producers else "no")
+PY
+)
+if [[ $has_font_producers == yes ]]; then
     python3 tools/check_font_glyphs.py
 fi
 python3 tools/check_editorconfig.py
