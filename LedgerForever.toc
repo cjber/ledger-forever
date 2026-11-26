@@ -11,7 +11,7 @@
 ## X-License: GPL-3.0-or-later
 ## X-Website: https://github.com/cjber/ledger-forever
 ## X-Donate: https://github.com/sponsors/cjber
-## X-Forever-Core: v1.17.5
+## X-Forever-Core: v1.17.6
 ## X-Forever-Core-Embed: 1
 ## SavedVariables: LedgerForeverDB
 
